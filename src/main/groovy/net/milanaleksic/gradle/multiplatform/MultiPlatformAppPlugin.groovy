@@ -122,7 +122,7 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         installTask.group = APPLICATION_GROUP
         installTask.classifier = definition.id
         installTask.nsisClassPath = definition.nsisClassPath
-        installTask.nsisClassPath = definition.nsisSetupScript
+        installTask.nsisSetupScript = definition.nsisSetupScript
         installTask.version = model.version ? model.version : ''
         generateDistributionContents(installTask, definition)
         project.artifacts.add(CONFIGURATION_ARCHIVES, installTask.getOutputFile()) {
