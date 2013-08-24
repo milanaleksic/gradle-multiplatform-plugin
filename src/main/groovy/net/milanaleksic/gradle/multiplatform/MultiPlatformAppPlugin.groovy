@@ -42,12 +42,12 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         project.plugins.apply(JavaPlugin)
         model = project.extensions.create(APPLICATION_PLUGIN_NAME, ApplicationModel, project)
         project.afterEvaluate {
+            project.dependencies.add(JavaPlugin.COMPILE_CONFIGURATION_NAME, getConfigurationForThisPlatform())
             model.runConfigurations.each { addRunConfiguration(it) }
             if (model.artifacts.tarConfigurations.empty && model.artifacts.installationConfigurations.empty)
                 return
             model.artifacts.tarConfigurations.each { addTarConfiguration(it) }
             model.artifacts.installationConfigurations.each { addInstallationConfiguration(it) }
-            project.dependencies.add('compile', getConfigurationForThisPlatform())
         }
     }
 
