@@ -11,7 +11,7 @@ class RunConfiguration {
 
     String mainClassName
 
-    String workingDir
+    String workingDir = '.'
 
     /**
      * Array of string arguments to pass to the JVM when running the application
