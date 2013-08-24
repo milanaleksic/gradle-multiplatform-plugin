@@ -1,0 +1,23 @@
+apply plugin: 'groovy'
+apply plugin: 'idea'
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+}
+
+idea {
+    project {
+        ipr {
+            withXml {
+                def vcsMapping = it.asNode().component.find { it.@name == 'VcsDirectoryMappings' }.mapping
+                vcsMapping.@vcs = 'Git'
+            }
+        }
+    }
+    module {
+        excludeDirs += [
+                '.gradle', 'build', 'gradle', 'out'
+        ].collect { file("$it") }
+    }
+}
