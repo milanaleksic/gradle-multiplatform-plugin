@@ -64,7 +64,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.milanaleksic.gradle:multiplatform:0.2'
+        classpath 'net.milanaleksic.gradle:multiplatform:0.3'
     }
 }
 apply plugin: 'multiplatform'
