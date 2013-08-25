@@ -54,6 +54,7 @@ class InstallationTask extends Copy {
 
     def executeBuild() {
         project.ant.nsis(script: nsisSetupScript, verbosity: "2", noconfig: "yes", nocd: "yes") {
+            define(name: 'VERSION', value: version)
             define(name: 'OUTPUT_FILENAME', value: getOutputFile())
             define(name: 'INSTALL_SOURCE_DIR', value: getDestinationDir().absolutePath)
         }

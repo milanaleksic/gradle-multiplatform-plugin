@@ -15,12 +15,28 @@ There are two purposes in this plugin, similar to the one available in Applicati
     - tgz - for linux-like target environments, initiated with **tar** command
     - NSIS-based installation - for windows-like target environments, created with **installation** statement
 
+### Archive output
+The output archive format is as follows (you might need to adapt your scripts and file tree to accomodate
+this contraint):
+
+```
+(root) ... all core files, with overrides included (if existing) ...
+  - lib
+    - ... all JARs (dependencies) are here ...
+```
+
+### NSIS helper defines
+NSIS installations are helped with following parameters sent to the script:
+- **VERSION** - value of the *multiplatform.version* property
+- **OUTPUT_FILENAME** - value of the *${project.name}-${version}-${classifier}.exe* expression
+- **INSTALL_SOURCE_DIR** - absolute path to the temporary directory where all of archive files are placed
+
 ### Override files
 If you have files that need to be placed in the per-environment archive, you can place them in separate
 directories and then use **overrideDir** property of archive to artifact model object to say where those 
 files are placed.
 
-This feature, thus, allows you to have e.g. EXE for windows installations and SH for Linux
+This feature, thus, allows you to have e.g. .EXE files for windows installations and .SH for Linux archives.
 
 ### Shell scripts
 In case you want to pack shell scripts, they are *always* placed in tgz archive with 755 permissions.
@@ -67,11 +83,13 @@ multiplatform {
         // for configuring NSIS ant task
         nsisSetupScript = nsisSetupScriptLoc            // nsisSetupScriptLoc: String - location of global NSIS script
 
-        coreFiles {
-            file("$startupDir/.launcher")
+        coreFiles = project.copySpec {                  // define files which need to be present in all artifacts
+            into('bin')
+            from("$startupDir/.launcher",
+                    "$startupDir/configuration.xml")
         }
 
-        // e.g. for windows, 32-bit environment, we want to create an archive with "win32" suffix 
+        // e.g. for windows, 32-bit environment, we want to create an archive with "win32" classifer suffix 
         installation('win32', FAMILY_WINDOWS, ARCH_X86) {
             nsisSetupScript = nsisSetupScriptLoc32 // in case you wish to override global NSIS script
             overrideDir = file(buildOverridesWin)  // buildOverridesWin: String - override files for this environment

@@ -7,6 +7,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.CopySpec
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
@@ -74,13 +75,12 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         return project.configurations.getByName(definitions[0].id)
     }
 
-    private CopySpec generateDistributionContents(AbstractCopyTask task, ArtifactDefinition definition) {
+    private def generateDistributionContents(AbstractCopyTask task, ArtifactDefinition definition) {
         def jar = project.tasks[JavaPlugin.JAR_TASK_NAME]
         def runtimeDepsWithoutThisPlatformDeps = ((LinkedHashSet) project.configurations.runtime.getFiles()).clone()
         runtimeDepsWithoutThisPlatformDeps.removeAll(getConfigurationForThisPlatform().getFiles())
-        task.into('bin') {
-            from(model.artifacts.coreFiles)
-        }
+        task.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        task.with(model.artifacts.coreFiles)
         task.from(definition.overrideDir) {
             exclude('**/*.sh') // shell scripts are special case. The rest is logical
         }

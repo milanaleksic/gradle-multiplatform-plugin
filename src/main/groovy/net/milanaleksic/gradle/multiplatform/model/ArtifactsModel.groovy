@@ -1,7 +1,7 @@
 package net.milanaleksic.gradle.multiplatform.model
 
 import org.gradle.api.Project
-import org.gradle.api.file.FileCollection
+import org.gradle.api.file.CopySpec
 import org.gradle.util.ConfigureUtil
 
 /**
@@ -15,13 +15,13 @@ class ArtifactsModel {
     private Project project
 
     String nsisSetupScript
-    FileCollection coreFiles
+    CopySpec coreFiles
 
     ArtifactsModel(Project project) {
         this.project = project
         tarConfigurations = []
         installationConfigurations = []
-        coreFiles = project.files()
+        coreFiles = project.copySpec {}
     }
 
     void installation(String id, String family, List<String> archs, Closure closure) {
@@ -46,8 +46,8 @@ class ArtifactsModel {
         tar(id, family, [arch], closure)
     }
 
-    void coreFiles(Closure closure) {
-        coreFiles = project.files closure
+    void coreFiles(CopySpec copySpec) {
+        coreFiles = copySpec
     }
 
     List<TarDefinition> getTarConfigurations() {
