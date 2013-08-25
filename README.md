@@ -13,7 +13,7 @@ There are two purposes in this plugin, similar to the one available in Applicati
 - running
 - creating output, final archives - per environment. Available supported outputs are
     - tgz - for linux-like target environments, initiated with **tar** command
-    - NSIS-based installation - for windows-like target environments, created with **install** statement
+    - NSIS-based installation - for windows-like target environments, created with **installation** statement
 
 ### Override files
 If you have files that need to be placed in the per-environment archive, you can place them in separate
