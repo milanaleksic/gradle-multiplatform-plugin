@@ -12,8 +12,8 @@ Thus, this plugin was born.
 There are two purposes in this plugin, similar to the one available in Application plugin:
 - running
 - creating output, final archives - per environment. Available supported outputs are
-    - tgz - for linux-like target environments, initiated with "**tar**" command
-    - NSIS-based installation - for windows-like target environments, created with "**install**" statement
+    - tgz - for linux-like target environments, initiated with **tar** command
+    - NSIS-based installation - for windows-like target environments, created with **install** statement
 
 ### Override files
 If you have files that need to be placed in the per-environment archive, you can place them in separate
