@@ -18,10 +18,9 @@ class InstallationTask extends Copy {
 
     String version
     String classifier
-    String nsisClassPath
     String nsisSetupScript
 
-    private AtomicBoolean flag = new AtomicBoolean(false)
+    private static AtomicBoolean onceTaskSetupFlag = new AtomicBoolean(false)
 
     public InstallationTask() {
         super()
@@ -30,12 +29,16 @@ class InstallationTask extends Copy {
 
     @TaskAction
     def setUpNsisTask() {
-        if (flag.compareAndSet(false, true)) {
+        if (onceTaskSetupFlag.compareAndSet(false, true)) {
             log.info("Registering NSIS Ant task")
+            project.configurations { nsisInstallationOnly }
+            project.dependencies {
+                nsisInstallationOnly "net.sf:nsisant:1.3"
+            }
             project.ant.taskdef(
                     name: "nsis",
                     classname: "com.danielreese.nsisant.Task",
-                    classpath: nsisClassPath
+                    classpath: project.configurations.nsisInstallationOnly.asPath
             )
         }
         executeBuild()

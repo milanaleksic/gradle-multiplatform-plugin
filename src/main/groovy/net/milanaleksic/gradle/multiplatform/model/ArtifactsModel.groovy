@@ -14,7 +14,6 @@ class ArtifactsModel {
     private List<InstallationDefinition> installationConfigurations
     private Project project
 
-    String nsisClassPath
     String nsisSetupScript
     FileCollection coreFiles
 
@@ -28,8 +27,6 @@ class ArtifactsModel {
     void installation(String id, String family, List<String> archs, Closure closure) {
         def definition = new InstallationDefinition(id, family, archs)
         ConfigureUtil.configure(closure, definition)
-        if (!definition.nsisClassPath)
-            definition.nsisClassPath = nsisClassPath // fallback to global nsisClassPath
         if (!definition.nsisSetupScript)
             definition.nsisSetupScript = nsisSetupScript // fallback to global nsisClassPath
         installationConfigurations << definition

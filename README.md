@@ -48,7 +48,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.milanaleksic.gradle:multiplatform:0.1'
+        classpath 'net.milanaleksic.gradle:multiplatform:0.2'
     }
 }
 apply plugin: 'multiplatform'
@@ -65,7 +65,6 @@ multiplatform {
     // artifacts domain object is used to define output archives
     artifacts {
         // for configuring NSIS ant task
-        nsisClassPath = configurations.buildOnly.asPath // which classpath contains NSIS ant jar?
         nsisSetupScript = nsisSetupScriptLoc            // nsisSetupScriptLoc: String - location of global NSIS script
 
         coreFiles {

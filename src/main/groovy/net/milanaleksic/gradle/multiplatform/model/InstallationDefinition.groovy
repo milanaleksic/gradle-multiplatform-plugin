@@ -6,10 +6,8 @@ import groovy.transform.ToString
  * User: Milan Aleksic (milanaleksic@gmail.com)
  * Date: 19/08/2013
  */
-@ToString(includeNames = true, includeSuper = true, excludes = "nsisClassPath")
+@ToString(includeNames = true, includeSuper = true)
 class InstallationDefinition extends ArtifactDefinition {
-
-    String nsisClassPath
 
     String nsisSetupScript
 

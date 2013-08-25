@@ -121,7 +121,6 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         installTask.description = "Creates NSIS installation for config \"${definition.id}\""
         installTask.group = APPLICATION_GROUP
         installTask.classifier = definition.id
-        installTask.nsisClassPath = definition.nsisClassPath
         installTask.nsisSetupScript = definition.nsisSetupScript
         installTask.version = model.version ? model.version : ''
         generateDistributionContents(installTask, definition)
