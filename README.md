@@ -71,7 +71,7 @@ apply plugin: 'multiplatform'
 
 // finally, the DSL
 multiplatform {
-    version = mcsVersion             // mcsVersion: String - a simple 
+    version = mcsVersion             // mcsVersion: String - a simple version string (e.g. '0.3')
 
     runner {
         mainClassName = srcMainClass // srcMainClass: String - class with main()
