@@ -6,7 +6,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.file.CopySpec
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -19,6 +18,8 @@ import org.gradle.api.tasks.bundling.Tar
 
 import java.util.concurrent.atomic.AtomicReference
 
+import static org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS
+
 class MultiPlatformAppPlugin implements Plugin<Project> {
 
     private static final Logger log = Logging.getLogger(ApplicationModel.class);
@@ -30,7 +31,7 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
     static final String APPLICATION_GROUP = APPLICATION_PLUGIN_NAME
 
     static final String TASK_RUN_NAME = 'run'
-    static final String TASK_TAR_NAME_PREFIX ='tar'
+    static final String TASK_TAR_NAME_PREFIX = 'tar'
     static final String TASK_INSTALL_NAME_PREFIX = 'install'
     private static final String CONFIGURATION_ARCHIVES = 'archives'
 
@@ -52,27 +53,37 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         }
     }
 
-    private Configuration getConfigurationForThisPlatform() {
+    Configuration getConfigurationForThisPlatform() {
         List<ArtifactDefinition> definitions =
-            (model.artifacts.tarConfigurations + model.artifacts.installationConfigurations).findAll {
-                ArtifactDefinition definition ->
-                    Os.isFamily(definition.family) && definition.archs.find { Os.isArch(it) }
-            }
+                (model.artifacts.tarConfigurations + model.artifacts.installationConfigurations).findAll {
+                    ArtifactDefinition definition ->
+                        isFamily(definition.family) && definition.archs.find { Os.isArch(it) }
+                }
         if (definitions.size() != 1) {
             log.error("Dumping information since no suitable configuration found for build platform")
-            log.error ("TAR size: "+model.artifacts.tarConfigurations.size())
-            log.error ("Installation size: "+model.artifacts.installationConfigurations.size())
+            log.error("TAR size: " + model.artifacts.tarConfigurations.size())
+            log.error("Installation size: " + model.artifacts.installationConfigurations.size())
             (model.artifacts.tarConfigurations + model.artifacts.installationConfigurations).each {
                 ArtifactDefinition definition ->
-                    log.error("Os.isFamily(definition.family)=${Os.isFamily(definition.family)} for definition.family=${definition.family}")
+                    log.error("isFamily(definition.family)=${isFamily(definition.family)} for definition.family=${definition.family}")
                     definition.archs.each {
                         log.error("Os.isArch(it)=${Os.isArch(it)} for arch=${it}")
                     }
                     log.error "definition.archs.find { Os.isArch(it) }=${definition.archs.find { Os.isArch(it) }}"
             }
-            throw new StopExecutionException("OS not supported: ${System.getProperty('os.name').toLowerCase()} / ${System.getProperty('os.arch').toLowerCase()}")
+            throw new StopExecutionException("OS not supported via unique multiplatform archive: " +
+                    "${System.getProperty('os.name').toLowerCase()} / ${System.getProperty('os.arch').toLowerCase()}")
         }
         return project.configurations.getByName(definitions[0].id)
+    }
+
+    /* since windows 8 is not recognized by Ant 1.8.4 */
+    private static boolean isFamily(String family) {
+        final def OS_NAME = System.getProperty("os.name").toLowerCase(Locale.ENGLISH)
+        if (OS_NAME == "windows 8" && family == FAMILY_WINDOWS)
+            return true
+        else
+            return Os.isFamily(family)
     }
 
     private def generateDistributionContents(AbstractCopyTask task, ArtifactDefinition definition) {
@@ -112,7 +123,7 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
     private void addInstallationConfiguration(InstallationDefinition definition) {
         String titleCapitalized = definition.id.substring(0, 1).toUpperCase() + definition.id.substring(1)
         def taskTitle = "$TASK_INSTALL_NAME_PREFIX$titleCapitalized"
-        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+        if (!isFamily(FAMILY_WINDOWS)) {
             log.warn("Installations are avoided since the build environment is not Windows")
             return
         }
