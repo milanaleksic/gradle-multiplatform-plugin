@@ -11,7 +11,7 @@ class InstallationDefinition extends ArtifactDefinition {
 
     String nsisSetupScript
 
-    InstallationDefinition(String id, String family, List<String> archs) {
-        super(id, family, archs)
+    InstallationDefinition(String id) {
+        super(id)
     }
 }

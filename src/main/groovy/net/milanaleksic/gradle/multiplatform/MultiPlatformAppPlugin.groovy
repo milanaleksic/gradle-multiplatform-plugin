@@ -54,17 +54,16 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
     }
 
     Configuration getConfigurationForThisPlatform() {
-        List<ArtifactDefinition> definitions =
-                (model.artifacts.tarConfigurations + model.artifacts.installationConfigurations).findAll {
-                    ArtifactDefinition definition ->
+        List<DependencyMappingDefinition> definitions =
+                model.dependencyMappings?.dependencyMappingConfigurations?.findAll {
+                    DependencyMappingDefinition definition ->
                         isFamily(definition.family) && definition.archs.find { Os.isArch(it) }
                 }
         if (definitions.size() != 1) {
             log.error("Dumping information since no suitable configuration found for build platform")
-            log.error("TAR size: " + model.artifacts.tarConfigurations.size())
-            log.error("Installation size: " + model.artifacts.installationConfigurations.size())
-            (model.artifacts.tarConfigurations + model.artifacts.installationConfigurations).each {
-                ArtifactDefinition definition ->
+            log.error("Dependency mapping size: " + model.dependencyMappings?.dependencyMappingConfigurations?.size())
+            model.dependencyMappings.dependencyMappingConfigurations?.each {
+                DependencyMappingDefinition definition ->
                     log.error("isFamily(definition.family)=${isFamily(definition.family)} for definition.family=${definition.family}")
                     definition.archs.each {
                         log.error("Os.isArch(it)=${Os.isArch(it)} for arch=${it}")

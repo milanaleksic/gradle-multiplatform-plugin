@@ -9,8 +9,8 @@ import groovy.transform.ToString
 @ToString(includeNames = true, includeSuper = true)
 class TarDefinition extends ArtifactDefinition {
 
-    TarDefinition(String id, String family, List<String> archs) {
-        super(id, family, archs)
+    TarDefinition(String id) {
+        super(id)
     }
 
 }

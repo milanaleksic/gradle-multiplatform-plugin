@@ -27,27 +27,57 @@ class MultiPlatformAppPluginTest {
 
     @Test
     public void checkForThisPlatform() {
+        Project project = prepareProject()
+        project.multiplatform.dependencyMappings {
+            dependencyMapping('win32', FAMILY_WINDOWS, ARCH_X86)
+            dependencyMapping('win64', FAMILY_WINDOWS, ARCH_X86_64)
+            dependencyMapping('linux32', FAMILY_UNIX, ARCH_X86)
+            dependencyMapping('linux64', FAMILY_UNIX, ARCH_X86_64)
+        }
+        project.evaluate()
+    }
+
+    @Test
+    public void checkArchiveBuildingForThisPlatform() {
+        Project project = prepareProject()
+        project.multiplatform {
+
+            dependencyMappings {
+                dependencyMapping('win32', FAMILY_WINDOWS, ARCH_X86)
+                dependencyMapping('win64', FAMILY_WINDOWS, ARCH_X86_64)
+                dependencyMapping('linux32', FAMILY_UNIX, ARCH_X86)
+                dependencyMapping('linux64', FAMILY_UNIX, ARCH_X86_64)
+            }
+
+            artifacts {
+                nsisSetupScript = 'someLocation'
+
+                coreFiles = project.copySpec {
+                    into('bin')
+                    from("core")
+                }
+
+                installation('win32')
+                installation('win64')
+
+                tar('linux32')
+                tar('linux64')
+            }
+        }
+        project.evaluate()
+    }
+
+    private Project prepareProject() {
         Project project = ProjectBuilder.builder().build()
         project.apply plugin: 'multiplatform'
 
-        project.multiplatform.artifacts {
-            installation('win32', FAMILY_WINDOWS, ARCH_X86) {
-            }
-            installation('win64', FAMILY_WINDOWS, ARCH_X86_64) {
-            }
-            tar('linux32', FAMILY_UNIX, ARCH_X86) {
-            }
-            tar('linux64', FAMILY_UNIX, ARCH_X86_64) {
-            }
+        project.configurations {
+            win32
+            win64
+            linux32
+            linux64
         }
-
-        try {
-            project.evaluate()
-            fail('configuration is not set, expected exception to be raised')
-        } catch (ProjectConfigurationException exception) {
-            assertThat(exception?.cause?.cause, not(nullValue()))
-            assertThat(exception?.cause?.cause, instanceOf(UnknownConfigurationException))
-        }
+        project
     }
 
 }

@@ -24,26 +24,26 @@ class ArtifactsModel {
         coreFiles = project.copySpec {}
     }
 
-    void installation(String id, String family, List<String> archs, Closure closure) {
-        def definition = new InstallationDefinition(id, family, archs)
+    void installation(String id) {
+        installation(id, null)
+    }
+
+    void installation(String id, Closure closure) {
+        def definition = new InstallationDefinition(id)
         ConfigureUtil.configure(closure, definition)
         if (!definition.nsisSetupScript)
             definition.nsisSetupScript = nsisSetupScript // fallback to global nsisClassPath
         installationConfigurations << definition
     }
 
-    void installation(String id, String family, String arch, Closure closure) {
-        installation(id, family, [arch], closure)
+    void tar(String id) {
+        tar(id, null)
     }
 
-    void tar(String id, String family, List<String> archs, Closure closure) {
-        def definition = new TarDefinition(id, family, archs)
+    void tar(String id, Closure closure) {
+        def definition = new TarDefinition(id)
         ConfigureUtil.configure(closure, definition)
         tarConfigurations << definition
-    }
-
-    void tar(String id, String family, String arch, Closure closure) {
-        tar(id, family, [arch], closure)
     }
 
     void coreFiles(CopySpec copySpec) {

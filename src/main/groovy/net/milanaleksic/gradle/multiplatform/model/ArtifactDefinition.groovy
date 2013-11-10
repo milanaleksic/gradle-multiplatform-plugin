@@ -13,13 +13,7 @@ abstract class ArtifactDefinition {
 
     File overrideDir
 
-    String family
-
-    List<String> archs
-
-    ArtifactDefinition(String id, String family, List<String> archs) {
+    ArtifactDefinition(String id) {
         this.id = id
-        this.family = family
-        this.archs = archs
     }
 }

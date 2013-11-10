@@ -13,17 +13,24 @@ class ApplicationModel {
 
     ArtifactsModel artifacts
 
+    DependencyMappingsModel dependencyMappings
+
     String version
 
     ApplicationModel(Project project) {
         runConfigurations = []
         artifacts = new ArtifactsModel(project)
+        dependencyMappings = new DependencyMappingsModel(project)
     }
 
     void runner(Closure closure) {
         RunConfiguration configuration = new RunConfiguration()
         ConfigureUtil.configure(closure, configuration)
         runConfigurations << configuration
+    }
+
+    void dependencyMappings(Closure closure) {
+        ConfigureUtil.configure(closure, dependencyMappings)
     }
 
     void artifacts(Closure closure) {
