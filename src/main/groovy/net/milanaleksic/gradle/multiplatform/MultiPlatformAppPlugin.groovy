@@ -115,6 +115,7 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         archiveTask.classifier = definition.id
         archiveTask.compression = Compression.GZIP
         archiveTask.version = model.version ? model.version : ''
+        archiveTask.dependsOn << project.subprojects.assemble
         generateDistributionContents(archiveTask, definition)
         project.artifacts.add(CONFIGURATION_ARCHIVES, archiveTask)
     }
@@ -133,6 +134,7 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         installTask.classifier = definition.id
         installTask.nsisSetupScript = definition.nsisSetupScript
         installTask.version = model.version ? model.version : ''
+        installTask.dependsOn << project.subprojects.assemble
         generateDistributionContents(installTask, definition)
         project.artifacts.add(CONFIGURATION_ARCHIVES, installTask.getOutputFile()) {
             builtBy(installTask)
