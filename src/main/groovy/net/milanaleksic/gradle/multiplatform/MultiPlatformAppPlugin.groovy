@@ -157,5 +157,6 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         run.workingDir = { runConfiguration.workingDir }
         run.conventionMapping.main = { runConfiguration.mainClassName }
         run.conventionMapping.jvmArgs = { runConfiguration.applicationDefaultJvmArgs }
+        run.dependsOn << project.subprojects.assemble
     }
 }
