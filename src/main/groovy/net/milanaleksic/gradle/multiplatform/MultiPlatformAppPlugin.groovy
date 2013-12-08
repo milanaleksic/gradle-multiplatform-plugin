@@ -100,6 +100,30 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         }
         task.into('lib') {
             from(jar)
+            if (project.subprojects) {
+                from {
+                    def allDeps = []
+                    project.subprojects.each { child ->
+                        child.configurations.compile.each { cfg ->
+                            if (cfg.isFile())
+                                allDeps << cfg
+                        }
+                        child.configurations.runtime.each { cfg ->
+                            if (cfg.isFile())
+                                allDeps << cfg
+                        }
+                    }
+                    allDeps.removeAll(getConfigurationForThisPlatform().getFiles())
+                    (project.files(allDeps.unique()))
+                }
+                from {
+                    def jars = []
+                    project.subprojects.collect { child ->
+                        jars << child.jar.archivePath
+                    }
+                    (project.files(jars.unique()))
+                }
+            }
             from(runtimeDepsWithoutThisPlatformDeps)
             from(project.configurations.getByName(definition.id))
         }
