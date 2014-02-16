@@ -18,6 +18,4 @@ class RunConfiguration {
      */
     Iterable<String> applicationDefaultJvmArgs = []
 
-    Boolean dependOnSubProjectOutput = false
-
 }

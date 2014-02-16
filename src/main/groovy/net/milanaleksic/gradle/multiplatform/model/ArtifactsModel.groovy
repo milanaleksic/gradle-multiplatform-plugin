@@ -16,6 +16,7 @@ class ArtifactsModel {
 
     String nsisSetupScript
     CopySpec coreFiles
+    Iterable<Project> dependsOnProjects = []
 
     ArtifactsModel(Project project) {
         this.project = project

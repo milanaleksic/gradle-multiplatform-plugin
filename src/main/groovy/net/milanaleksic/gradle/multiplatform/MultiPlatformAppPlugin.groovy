@@ -45,11 +45,11 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         model = project.extensions.create(APPLICATION_PLUGIN_NAME, ApplicationModel, project)
         project.afterEvaluate {
             project.dependencies.add(JavaPlugin.COMPILE_CONFIGURATION_NAME, getConfigurationForThisPlatform())
-            model.runConfigurations.each { addRunConfiguration(it) }
+            model.runConfigurations.each { addRunConfiguration(it, model.artifacts) }
             if (model.artifacts.tarConfigurations.empty && model.artifacts.installationConfigurations.empty)
                 return
-            model.artifacts.tarConfigurations.each { addTarConfiguration(it) }
-            model.artifacts.installationConfigurations.each { addInstallationConfiguration(it) }
+            model.artifacts.tarConfigurations.each { addTarConfiguration(it, model.artifacts) }
+            model.artifacts.installationConfigurations.each { addInstallationConfiguration(it, model.artifacts) }
         }
     }
 
@@ -85,7 +85,7 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
             return Os.isFamily(family)
     }
 
-    private def generateDistributionContents(AbstractCopyTask task, ArtifactDefinition definition) {
+    private def generateDistributionContents(AbstractCopyTask task, ArtifactDefinition definition, ArtifactsModel artifacts) {
         def jar = project.tasks[JavaPlugin.JAR_TASK_NAME]
         def runtimeDepsWithoutThisPlatformDeps = ((LinkedHashSet) project.configurations.runtime.getFiles()).clone()
         runtimeDepsWithoutThisPlatformDeps.removeAll(getConfigurationForThisPlatform().getFiles())
@@ -100,10 +100,10 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         }
         task.into('lib') {
             from(jar)
-            if (project.subprojects) {
+            if (artifacts.dependsOnProjects) {
                 from {
                     def allDeps = []
-                    project.subprojects.each { child ->
+                    artifacts.dependsOnProjects.each { child ->
                         child.configurations.compile.each { cfg ->
                             if (cfg.isFile())
                                 allDeps << cfg
@@ -118,7 +118,7 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
                 }
                 from {
                     def jars = []
-                    project.subprojects.collect { child ->
+                    artifacts.dependsOnProjects.collect { child ->
                         jars << child.jar.archivePath
                     }
                     (project.files(jars.unique()))
@@ -129,7 +129,7 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         }
     }
 
-    private void addTarConfiguration(TarDefinition definition) {
+    private void addTarConfiguration(TarDefinition definition, ArtifactsModel artifacts) {
         String titleCapitalized = definition.id.substring(0, 1).toUpperCase() + definition.id.substring(1)
         def taskTitle = "$TASK_TAR_NAME_PREFIX$titleCapitalized"
         log.info("Adding Tar task: $definition under task $taskTitle")
@@ -139,12 +139,14 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         archiveTask.classifier = definition.id
         archiveTask.compression = Compression.GZIP
         archiveTask.version = model.version ? model.version : ''
-        archiveTask.dependsOn << project.subprojects.assemble
-        generateDistributionContents(archiveTask, definition)
+        if (artifacts.dependsOnProjects) {
+            archiveTask.dependsOn << artifacts.dependsOnProjects.assemble
+        }
+        generateDistributionContents(archiveTask, definition, artifacts)
         project.artifacts.add(CONFIGURATION_ARCHIVES, archiveTask)
     }
 
-    private void addInstallationConfiguration(InstallationDefinition definition) {
+    private void addInstallationConfiguration(InstallationDefinition definition, ArtifactsModel artifacts) {
         String titleCapitalized = definition.id.substring(0, 1).toUpperCase() + definition.id.substring(1)
         def taskTitle = "$TASK_INSTALL_NAME_PREFIX$titleCapitalized"
         if (!isFamily(FAMILY_WINDOWS)) {
@@ -158,22 +160,24 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         installTask.classifier = definition.id
         installTask.nsisSetupScript = definition.nsisSetupScript
         installTask.version = model.version ? model.version : ''
-        installTask.dependsOn << project.subprojects.assemble
-        generateDistributionContents(installTask, definition)
+        if (artifacts.dependsOnProjects) {
+            installTask.dependsOn << artifacts.dependsOnProjects.assemble
+        }
+        generateDistributionContents(installTask, definition, artifacts)
         project.artifacts.add(CONFIGURATION_ARCHIVES, installTask.getOutputFile()) {
             builtBy(installTask)
             type 'exe'
         }
     }
 
-    private void addRunConfiguration(RunConfiguration runConfiguration) {
+    private void addRunConfiguration(RunConfiguration runConfiguration, ArtifactsModel artifacts) {
         log.info("Received run configuration: $runConfiguration")
         if (currentRunConfiguration.getAndSet(runConfiguration) != null)
             throw new GradleException("It is illegal to set up multiple run configurations!")
-        doAddRunConfiguration(runConfiguration)
+        doAddRunConfiguration(runConfiguration, artifacts)
     }
 
-    private void doAddRunConfiguration(RunConfiguration runConfiguration) {
+    private void doAddRunConfiguration(RunConfiguration runConfiguration, ArtifactsModel artifacts) {
         def run = project.tasks.create(TASK_RUN_NAME, JavaExec)
         run.description = "Runs this project as a JVM application"
         run.group = APPLICATION_GROUP
@@ -181,10 +185,11 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         run.workingDir = { runConfiguration.workingDir }
         run.conventionMapping.main = { runConfiguration.mainClassName }
         run.conventionMapping.jvmArgs = { runConfiguration.applicationDefaultJvmArgs }
-        if (runConfiguration.dependOnSubProjectOutput) {
-            run.dependsOn << project.subprojects.assemble
-            project.subprojects.each { subproject ->
-                run.classpath.add(subproject.sourceSets.main.runtimeClasspath)
+        // depends on projects is now in artifactsmodel
+        if (artifacts.dependsOnProjects) {
+            run.dependsOn << artifacts.dependsOnProjects.assemble
+            artifacts.dependsOnProjects.each { project ->
+                run.classpath.add(project.sourceSets.main.runtimeClasspath)
             }
         }
     }
