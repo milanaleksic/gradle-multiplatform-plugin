@@ -86,7 +86,6 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
     }
 
     private def generateDistributionContents(AbstractCopyTask task, ArtifactDefinition definition, ArtifactsModel artifacts) {
-        def jar = project.tasks[JavaPlugin.JAR_TASK_NAME]
         def runtimeDepsWithoutThisPlatformDeps = ((LinkedHashSet) project.configurations.runtime.getFiles()).clone()
         runtimeDepsWithoutThisPlatformDeps.removeAll(getConfigurationForThisPlatform().getFiles())
         task.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -99,7 +98,6 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
             fileMode = 0755
         }
         task.into('lib') {
-            from(jar)
             if (artifacts.dependsOnProjects) {
                 from {
                     def allDeps = []
