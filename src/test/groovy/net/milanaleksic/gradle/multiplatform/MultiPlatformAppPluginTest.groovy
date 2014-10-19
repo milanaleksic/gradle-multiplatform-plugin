@@ -33,6 +33,7 @@ class MultiPlatformAppPluginTest {
             dependencyMapping('win64', FAMILY_WINDOWS, ARCH_X86_64)
             dependencyMapping('linux32', FAMILY_UNIX, ARCH_X86)
             dependencyMapping('linux64', FAMILY_UNIX, ARCH_X86_64)
+            dependencyMapping('linuxArm', FAMILY_UNIX, ARCH_ARM)
         }
         project.evaluate()
     }
@@ -47,6 +48,7 @@ class MultiPlatformAppPluginTest {
                 dependencyMapping('win64', FAMILY_WINDOWS, ARCH_X86_64)
                 dependencyMapping('linux32', FAMILY_UNIX, ARCH_X86)
                 dependencyMapping('linux64', FAMILY_UNIX, ARCH_X86_64)
+                dependencyMapping('linuxArm', FAMILY_UNIX, ARCH_ARM)
             }
 
             artifacts {
@@ -62,6 +64,7 @@ class MultiPlatformAppPluginTest {
 
                 tar('linux32')
                 tar('linux64')
+                tar('linuxArm')
             }
         }
         project.evaluate()

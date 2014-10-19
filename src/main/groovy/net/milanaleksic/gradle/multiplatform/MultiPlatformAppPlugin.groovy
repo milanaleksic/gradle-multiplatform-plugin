@@ -24,6 +24,7 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
 
     private static final Logger log = Logging.getLogger(ApplicationModel.class);
 
+    public static final String ARCH_ARM = 'arm'
     public static final String ARCH_X86 = 'x86'
     public static final List<String> ARCH_X86_64 = ['x86_64', 'amd64']
 
