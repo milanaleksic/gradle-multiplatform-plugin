@@ -79,6 +79,7 @@ class MultiPlatformAppPluginTest {
             win64
             linux32
             linux64
+            linuxArm
         }
         project
     }
