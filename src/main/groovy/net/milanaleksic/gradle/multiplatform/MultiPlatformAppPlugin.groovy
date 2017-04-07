@@ -77,10 +77,9 @@ class MultiPlatformAppPlugin implements Plugin<Project> {
         return project.configurations.getByName(definitions[0].id)
     }
 
-    /* since windows 8 is not recognized by Ant 1.8.4 */
+    /* since windows 8 and windows 10 is not recognized by Ant 1.8.4 */
     private static boolean isFamily(String family) {
-        final def OS_NAME = System.getProperty("os.name").toLowerCase(Locale.ENGLISH)
-        if (OS_NAME == "windows 8" && family == FAMILY_WINDOWS)
+        if ((Os.OS_NAME == "windows 8" || Os.OS_NAME == "windows 10") && family == FAMILY_WINDOWS)
             return true
         else
             return Os.isFamily(family)
